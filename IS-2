@@ -2,36 +2,48 @@ import math
 
 def get_key_order(key):
     return sorted(range(len(key)), key = lambda k: key[k])
-    
+
 def encrypt(msg, key):
     order = get_key_order(key)
     cols = len(key)
     rows = math.ceil(len(msg) / cols)
     msg += 'X' * (cols * rows - len(msg))
-    
-    grid = [msg[i:i+cols] for i in range (0, len(msg), cols)]
-    
-    return ''.join(''.join(row[i] for row in grid) for i in order)
-    
+
+    grid = []
+    for i in range(0, len(msg), cols):
+        row = msg[i: i+cols]
+        grid.append(row)
+
+    encrypted_msg = ""
+    for col_index in order:
+        for row in grid:
+            encrypted_msg += row[col_index]
+
+    return encrypted_msg
+
 def decrypt(cipher, key):
     order = get_key_order(key)
     cols = len(key)
-    rows = math.ceil(len(cipher) / cols )
-    
+    rows = math.ceil(len(msg)/cols)
+
     grid = [[''] * cols for _ in range(rows)]
     k = 0
-    
+
     for i in order:
         for r in range(rows):
-            grid[r][i] += cipher[k]
+            grid[r][i] = cipher[k]
             k += 1
-    
-    return ''.join(''.join(row) for row in grid).rstrip('X')
-    
-message = input("Enter the message: ").replace(" ", "").upper()
-key = input("Enter the key: ").upper()
 
-cipher = encrypt(message, key)
+    message = ''
+    for row in grid:
+        message += ''.join(row)
+
+    return message.rstrip('X')
+
+
+msg = input("Enter the message: ").replace(" ","").upper()
+key = input("Enter the key: ").upper()
+cipher = encrypt(msg, key)
 print("\nEncrypted: ", cipher)
 
 plain = decrypt(cipher, key)
